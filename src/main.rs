@@ -108,6 +108,11 @@ fn main() {
     let output_str = std::str::from_utf8(&output.stdout).unwrap();
 
     let title = get_title(output_str);
+    if title.is_empty() {
+        print!("{}", output_str);
+        return
+    }
+
     let styles = get_styles(output_str);
     let mut content = get_content(output_str);
 
