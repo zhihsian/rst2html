@@ -66,6 +66,7 @@ fn add_code_line(content: &str) -> String {
 
     let re = Regex::new(r"(?s)(<pre[^>]*?><code>)(.*?)(</code></pre>)").unwrap();
     let line_re = Regex::new(r"(?m)^(.*?)$").unwrap();
+    let break_line_re = Regex::new(r#"(?m)\n(</[^>]+>)"#).unwrap();
 
     for caps in re.captures_iter(content) {
         // 完整的 pre 標籤
@@ -80,8 +81,11 @@ fn add_code_line(content: &str) -> String {
         // 代碼內容
         let code_ori = caps.get(2).map_or("", |m| m.as_str());
 
+        // 將 \n</span> 轉爲 </span>\n
+        let code_new = &break_line_re.replace_all(code_ori, "$1\n").to_string();
+
         // 代碼每一行使用 span.code-line 包裹起來
-        let code_new = &line_re.replace_all(code_ori, r#"<span class="code-line">$1</span>"#).to_string();
+        let code_new = &line_re.replace_all(code_new, r#"<span class="code-line">$1</span>"#).to_string();
 
         // 拼合成新的完整的 pre 標籤
         let mut full_new = String::from(start_tag);
